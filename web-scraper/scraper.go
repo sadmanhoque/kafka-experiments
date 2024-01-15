@@ -1,35 +1,20 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gocolly/colly"
 )
 
-// defining a data structure to store the scraped data
-type PokemonProduct struct {
-	url, image, name, price string
-}
-
 func main() {
 
-	c := colly.NewCollector()
-	// initializing the slice of structs that will contain the scraped data
-	var pokemonProducts []PokemonProduct
+	scrapeUrl := "https://applications.crtc.gc.ca/portail-portal/eng/listes-lists/broadcasting-services-list/9?_ga=2.149691062.1831938506.1700653356-630674744.1700653356"
 
-	c.Visit("https://scrapeme.live/shop/")
+	c := colly.NewCollector(colly.AllowedDomains("applications.crtc.gc.ca"))
 
-	// iterating over the list of HTML product elements
-	c.OnHTML("li.product", func(e *colly.HTMLElement) {
-		// initializing a new PokemonProduct instance
-		pokemonProduct := PokemonProduct{}
-
-		// scraping the data of interest
-		pokemonProduct.url = e.ChildAttr("a", "href")
-		pokemonProduct.image = e.ChildAttr("img", "src")
-		pokemonProduct.name = e.ChildText("h2")
-		pokemonProduct.price = e.ChildText(".price")
-
-		// adding the product instance with scraped data to the list of products
-		pokemonProducts = append(pokemonProducts, pokemonProduct)
+	c.OnHTML("h1[id=wb-cont]", func(h *colly.HTMLElement) {
+		fmt.Println(h.Text)
 	})
 
+	c.Visit(scrapeUrl)
 }
